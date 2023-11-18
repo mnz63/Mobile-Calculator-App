@@ -1,6 +1,6 @@
 import { NativeBaseProvider } from "native-base";
 import { StyleSheet, Text, View } from "react-native";
-import Home from "./src/routes/Home";
+import Home from "./src/screens/Home";
 import { customTheme } from "./src/common/utils/theme";
 import {
   useFonts,
@@ -8,6 +8,8 @@ import {
   WorkSans_400Regular,
 } from "@expo-google-fonts/work-sans";
 import { Provider } from "./src/common/context";
+import { AppRoutes } from "./src/routes/AppRoutes";
+import { NavigationContainer } from "@react-navigation/native";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -20,11 +22,13 @@ export default function App() {
   }
 
   return (
-    <NativeBaseProvider theme={customTheme}>
-      <Provider>
-        <Home />
-      </Provider>
-    </NativeBaseProvider>
+    <NavigationContainer>
+      <NativeBaseProvider theme={customTheme}>
+        <Provider>
+          <AppRoutes />
+        </Provider>
+      </NativeBaseProvider>
+    </NavigationContainer>
   );
 }
 

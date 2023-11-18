@@ -1,8 +1,7 @@
-import { Button, Center, Flex } from "native-base";
-import { useState } from "react";
+import { Button, Center, Flex, useColorMode } from "native-base";
+import { Dimensions } from "react-native";
 import Svg, { Path, G } from "react-native-svg";
 import { Switch } from "react-native-switch";
-import { useAdminContext } from "../../common/context";
 export default function ThemeButton() {
   const LightIcon = () => {
     return (
@@ -35,20 +34,23 @@ export default function ThemeButton() {
     );
   };
 
-  const { isLightTheme, setIsLightTheme } = useAdminContext();
+  const { toggleColorMode, colorMode } = useColorMode();
+  const switchValue = colorMode == "dark";
+
+  const margin = Dimensions.get("window").height / 40;
 
   return (
-    <Center w={"100%"} h={"100px"}>
+    <Center w={"100%"} marginTop={margin}>
       <Switch
-        value={isLightTheme}
-        onValueChange={(val) => setIsLightTheme(val)}
-        backgroundActive={"#D2D3DA"}
+        value={switchValue}
+        onValueChange={toggleColorMode}
+        backgroundActive={"#ffffff"}
         backgroundInactive={"#2E2F38"}
         circleActiveColor={"#FFF"}
         circleInActiveColor={"#4E505F"}
         renderActiveText={false}
         renderInActiveText={false}
-        renderInsideCircle={() => (isLightTheme ? <LightIcon /> : <DarkIcon />)}
+        renderInsideCircle={() => (switchValue ? <LightIcon /> : <DarkIcon />)}
       />
     </Center>
   );

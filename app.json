@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "calculadora",
+    "name": "Calculadora",
     "slug": "calculadora",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,7 +8,7 @@
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": [
@@ -31,6 +31,9 @@
       "eas": {
         "projectId": "9ccf3e2c-3d2e-4c7b-bcfe-5747d72193a5"
       }
-    }
-  }
+    },
+    "sdkVersion": "49.0.0",
+    "entryPoint": ".vscode\\exponentIndex.js"
+  },
+  "name": "calculadora"
 }

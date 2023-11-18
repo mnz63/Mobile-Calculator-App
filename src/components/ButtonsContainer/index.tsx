@@ -1,6 +1,9 @@
-import { Flex, HStack, VStack } from "native-base";
+import { Center, Flex } from "native-base";
 import ButtonComponent from "../Button";
 import Svg, { Path } from "react-native-svg";
+import { useEffect, useState } from "react";
+import Display from "../Display";
+import { Dimensions, Text, TouchableHighlight } from "react-native";
 
 export default function ButtonsContainer() {
   const deleteLabel = (
@@ -19,12 +22,8 @@ export default function ButtonsContainer() {
       type: "clear",
     },
     {
-      label: "+/-",
-      type: "any",
-    },
-    {
       label: "%",
-      type: "any",
+      type: "operator2",
     },
     {
       label: "÷",
@@ -43,7 +42,7 @@ export default function ButtonsContainer() {
       type: "number",
     },
     {
-      label: "x",
+      label: "*",
       type: "operator",
     },
     {
@@ -88,18 +87,136 @@ export default function ButtonsContainer() {
     },
     {
       label: deleteLabel,
-      type: "number",
+      type: "deleteDigit",
     },
     {
       label: "=",
       type: "operator",
     },
   ];
+
+  const initialState = {
+    value: "0",
+    clearDisplayValue: false,
+    operation: null,
+    values: [0, 0],
+    current: 0,
+  };
+
+  const [displayValue, setDisplayValue] = useState(initialState);
+  const [operationHistory, setOperationHistory] = useState(null);
+
+  const addDigit = (num) => {
+    if (num === "." && displayValue.value.includes(".")) {
+      return;
+    }
+
+    const clearDisplay =
+      displayValue.value === "0" || displayValue.clearDisplayValue;
+
+    const currentValue = clearDisplay ? "" : displayValue.value;
+    const value = currentValue + num;
+
+    if (num != ".") {
+      const newValue = parseFloat(value);
+      const values = [...displayValue.values];
+      values[displayValue.current] = newValue;
+      setDisplayValue({
+        ...displayValue,
+        value,
+        values,
+        clearDisplayValue: false,
+      });
+    } else {
+      setDisplayValue({ ...displayValue, value, clearDisplayValue: false });
+    }
+  };
+
+  const handleDeleteLastDigit = () => {
+    let value = displayValue?.value;
+    let valueString = value.toString();
+    valueString = valueString.substring(0, value.length - 1);
+
+    const values = [...displayValue.values];
+    values[displayValue.current] = parseFloat(valueString);
+
+    if (valueString.length === 0) {
+      valueString = "0";
+      values[displayValue.current] = parseFloat(valueString);
+      setDisplayValue({
+        ...displayValue,
+        value: valueString,
+        values,
+        clearDisplayValue: false,
+      });
+    } else {
+      setDisplayValue({
+        ...displayValue,
+        value: valueString,
+        values,
+        clearDisplayValue: false,
+      });
+    }
+  };
+
+  const setOperation = (operation: string) => {
+    if (displayValue.current === 0 && operation !== "=") {
+      setDisplayValue({
+        ...displayValue,
+        operation,
+        current: 1,
+        clearDisplayValue: true,
+      });
+    } else {
+      const equals = operation === "=";
+      const values = [...displayValue.values];
+      try {
+        if (displayValue.operation === "=" || !displayValue.operation) {
+          return;
+        }
+        setOperationHistory(
+          `${values[0]} ${displayValue.operation} ${values[1]}`
+        );
+        values[0] = eval(`${values[0]} ${displayValue.operation} ${values[1]}`);
+      } catch (e) {
+        values[0] = displayValue.values[0];
+      }
+      values[1] = 0;
+      setDisplayValue({
+        value: values[0].toString(),
+        operation: equals ? null : operation,
+        current: equals ? 0 : 1,
+        clearDisplayValue: !equals,
+        values,
+      });
+    }
+  };
+
+  const padding = Dimensions.get("window").width / 35;
+
   return (
-    <Flex direction="row" pl={"20px"} py={"20px"} flexWrap={"wrap"}>
-      {buttonsData.map((button, index) => (
-        <ButtonComponent key={index} label={button.label} type={button.type} />
-      ))}
-    </Flex>
+    <>
+      <Display
+        displayValue={displayValue.value}
+        operationHistory={operationHistory}
+      />
+
+      <Flex direction="row" pl={padding} py={padding} flexWrap={"wrap"}>
+        {buttonsData.map((button, index) => (
+          <ButtonComponent
+            key={index}
+            label={button.label}
+            type={button.type}
+            onPressNumber={(value) => addDigit(value)}
+            onSetOperation={(operator) => setOperation(operator)}
+            onClear={() => {
+              setOperationHistory(null);
+              setDisplayValue(initialState);
+            }}
+            onDeleteDigit={() => handleDeleteLastDigit()}
+          />
+        ))}
+      </Flex>
+    </>
   );
 }
